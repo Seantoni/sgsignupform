@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apple-Style Signup Form with Floating Labels and Animation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Base Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding-top: 100px;
+        }
+        h2 {
+            color: #1d1d1f;
+            font-size: 24px;
+            margin-bottom: 16px;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Nichrome 0.5', sans-serif;
+            font-weight: bold;
+        }
+        .subtitle {
+            color: #6e6e73;
+            font-size: 14px;
+            margin-bottom: 25px;
+            text-align: center;
+            max-width: 360px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Neue Montreal Regular', sans-serif;
+        }
+
+        /* Input Group Styles */
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+            width: 320px;
+            text-align: left;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: max-height 0.5s ease, opacity 0.5s ease, transform 0.5s ease;
+        }
+        /* When input-group is visible */
+        .input-group.visible {
+            max-height: 200px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 10px 12px 10px;
+            font-size: 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 18px;
+            box-sizing: border-box;
+            background: transparent;
+            outline: none;
+        }
+        .input-group label {
+            position: absolute;
+            top: 12px;
+            left: 10px;
+            font-size: 16px;
+            color: #6e6e73;
+            pointer-events: none;
+            transition: all 0.2s ease-out;
+            background-color: transparent;
+            padding: 0 5px;
+        }
+        /* Floating Label Effect */
+        .input-group.active label {
+            top: -8px;
+            left: 10px;
+            font-size: 12px;
+            color: #0071e3;
+            background-color: #fff;
+            padding: 0 5px;
+        }
+
+        /* Button Styles */
+        #signupBtn {
+            background-color: #6B64DB;
+            color: white;
+            font-size: 16px;
+            padding: 12px;
+            width: 320px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        #signupBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: #757575;
+            font-size: 16px;
+            padding: 12px;
+            width: 320px;
+            border: 1px solid #d2d2d7;
+            border-radius: 24px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background-color 0.3s ease;
+            opacity: 1;
+            max-height: none;
+            transform: none;
+        }
+        .google-btn:hover {
+            background-color: #f5f5f5;
+        }
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            width: 320px;
+            margin: 20px 0;
+            color: #6e6e73;
+            font-size: 14px;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #d2d2d7;
+        }
+
+        .separator span {
+            margin: 0 10px;
+        }
+
+        .ofertasimple-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: #757575;
+            font-size: 16px;
+            padding: 12px;
+            width: 320px;
+            border: 1px solid #d2d2d7;
+            border-radius: 24px;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .ofertasimple-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .pages-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page.current {
+            transform: translateX(0);
+        }
+
+        .page.next {
+            transform: translateX(100%);
+        }
+
+        .page.slide-left {
+            transform: translateX(-100%);
+        }
+
+        .page.slide-in {
+            transform: translateX(0);
+        }
+
+        .steps-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            width: 320px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            color: #6e6e73;
+            font-size: 14px;
+        }
+
+        .step.active {
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid #d2d2d7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+
+        .step.active .step-number {
+            background-color: #6B64DB;
+            border-color: #6B64DB;
+            color: white;
+        }
+
+        .step-divider {
+            width: 40px;
+            height: 1px;
+            background-color: #d2d2d7;
+            margin: 0 16px;
+        }
+
+        .payment-logos {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .sgo-logo {
+            height: 18px;
+            width: auto;
+            align-self: center;
+        }
+
+        .visa-logo {
+            height: 14px;
+            width: auto;
+            align-self: center;
+        }
+
+        .ofertasimple-logo {
+            height: 36px;
+            width: auto;
+            align-self: center;
+        }
+
+        .password-requirements {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6e6e73;
+        }
+
+        .requirement {
+            display: block;
+        }
+
+        .requirement.invalid {
+            color: #ff3b30;
+        }
+
+        .requirement.valid {
+            color: #34c759;
+        }
+
+        .terms-text {
+            font-size: 14px;
+            color: #6e6e73;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 10px 5px;
+            background-color: #fff;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        /* Media query for smaller screens */
+        @media (max-width: 600px) {
+            .terms-text {
+                font-size: 12px;
+                padding: 8px 5px;
+            }
+        }
+
+        .existing-user-text {
+            font-size: 14px;
+            color: #0071e3;
+            text-align: center;
+            margin-top: 16px;
+            padding: 10px 0;
+            width: 100%;
+            text-decoration: underline;
+        }
+
+        /* Credit Card Container */
+        .card-container {
+            background: linear-gradient(135deg, #6B64DB, #4e47c2);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1.586 / 1;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            color: white;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(145deg, #ffd700, #ffa500);
+            border-radius: 6px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add chip details */
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), transparent);
+            border-radius: 2px;
+        }
+
+        .card-logo {
+            position: absolute;
+            top: 21px;
+            right: 24px;
+            width: 72px;
+            height: 18px;
+            background-image: url('https://i.ibb.co/h1pMzxz/Visa-Brandmark-White-RGB-2021.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.9;
+        }
+
+        /* Card Input Groups - Override base styles */
+        .card-container .input-group {
+            position: relative;
+            margin-bottom: 16px;
+            width: 100%;
+            text-align: left;
+            max-height: none;
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+
+        .card-container .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        .card-container .input-group label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-container .input-group.active label {
+            font-size: 14px;
+            background: #6B64DB;
+            color: white;
+        }
+
+        /* Card Number Input */
+        .card-number {
+            letter-spacing: 2px;
+            font-family: monospace;
+            font-size: 18px !important;
+        }
+
+        /* Add subtle pattern overlay */
+        .card-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                              linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%);
+            background-size: 60px 60px;
+            border-radius: 16px;
+            opacity: 0.5;
+        }
+
+        /* Autofill styles */
+        .card-field input:-webkit-autofill,
+        .card-field input:-webkit-autofill:hover,
+        .card-field input:-webkit-autofill:focus {
+            -webkit-text-fill-color: white;
+            -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .no-charge-text {
+            color: #1d1d1f;
+            font-size: 15px;
+            text-align: center;
+            margin: 16px 0;
+            padding: 12px 16px;
+            font-family: 'Nichrome 0.5', sans-serif;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 320px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Add info icon before text */
+        .no-charge-text::before {
+            content: '🔒';
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .terms-consent {
+            color: #6e6e73;
+            font-size: 13px;
+            line-height: 1.4;
+            text-align: left;
+            margin: 16px 0;
+            max-width: 320px;
+            width: 100%;
+        }
+
+        .terms-link {
+            color: #0071e3;
+            text-decoration: none;
+        }
+
+        .terms-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <svg width="120" height="32" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20.5 6C13.6 6 8 11.6 8 18.5S13.6 31 20.5 31 33 25.4 33 18.5 27.4 6 20.5 6zm0 4c4.7 0 8.5 3.8 8.5 8.5s-3.8 8.5-8.5 8.5-8.5-3.8-8.5-8.5 3.8-8.5 8.5-8.5z" fill="#6B64DB"/>
+        <path d="M46 10v17h4V10h-4zm22.3 0l-6.3 17h4.1l1.3-3.8h7.2l1.3 3.8h4.1l-6.3-17h-5.4zm-1.1 10.2l2.5-7.3h.6l2.5 7.3h-5.6zm31.8-10.2v10.5L89.5 10H86v17h4V16.5L99.5 27h3.5V10h-4z" fill="#1d1d1f"/>
+    </svg>
+
+    <div class="steps-container">
+        <div class="step active">
+            <div class="step-number">1</div>
+            <span>Correo</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <span>Agregar Tarjeta</span>
+        </div>
+    </div>
+
+    <div class="pages-container">
+        <!-- First Page -->
+        <div class="page current" id="page1">
+            <h2>Comienza hoy y Obtén $5 como Bono de Bienvenida</h2>
+            <p class="subtitle">¿Ya tienes una cuenta de OfertaSimple? Puedes acceder con tu mismo correo.</p>
+
+            <!-- Email Input Group -->
+            <div class="input-group visible">
+                <input type="email" id="email" required>
+                <label for="email">Correo electrónico</label>
+            </div>
+
+            <!-- Password Input Group (Initially Hidden) -->
+            <div class="input-group" id="passwordField">
+                <input type="password" id="password" required>
+                <label for="password">Contraseña</label>
+                <div class="password-requirements">
+                    <span class="requirement" id="lengthReq">Mínimo 6 caracteres</span>
+                </div>
+            </div>
+
+            <!-- Sign Up Button (Initially Hidden) -->
+            <button id="signupBtn" disabled>Continuar</button>
+
+            <!-- Separator -->
+            <div class="separator">
+                <span>o</span>
+            </div>
+
+            <!-- Google Button -->
+            <button id="googleBtn" class="google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google icon" class="google-icon">
+                Continuar con Google
+            </button>
+
+            <!-- OfertaSimple Button -->
+            <button class="ofertasimple-btn">
+                Continuar con OfertaSimple
+            </button>
+
+            <div class="payment-logos">
+                <img src="https://i.ibb.co/Rvg3qQz/SGO-Marca-9.png" alt="SGO" class="sgo-logo">
+                <img src="https://i.ibb.co/b73sXN8/Visa-Brandmark-Blue-RGB-2021.png" alt="Visa" class="visa-logo">
+                <img src="https://images.milledcdn.com/2022-02-10/hfoIus5U4hVN2IFx/0_sky8wol6io.png" alt="OfertaSimple" class="ofertasimple-logo">
+            </div>
+
+            <div class="existing-user-text">
+                <a href="page1.html" style="color: inherit; text-decoration: inherit;">¿Ya estás suscrito? Inicia sesión aquí</a>
+            </div>      
+        </div>
+
+        <!-- Second Page -->
+        <div class="page next" id="page2">
+            <h2>Agrega tu tarjeta</h2>
+            <p class="subtitle">Ingresa los datos de tu tarjeta para comenzar</p>
+
+            <div class="card-container">
+                <div class="card-chip"></div>
+                <div class="card-logo"></div>
+                
+                <!-- Card Name Input -->
+                <div class="input-group">
+                    <input type="text" id="cardName" required maxlength="24" autocomplete="off">
+                    <label for="cardName">Nombre en la tarjeta</label>
+                </div>
+
+                <!-- Card Number Input -->
+                <div class="input-group">
+                    <input type="text" id="cardNumber" class="card-number" required maxlength="19" autocomplete="off" inputmode="numeric">
+                    <label for="cardNumber">Número de tarjeta</label>
+                </div>
+            </div>
+
+            <!-- No charge message -->
+            <p class="no-charge-text">Nunca cobraremos a tu tarjeta.</p>
+
+            <!-- Terms text -->
+            <p class="terms-consent">
+                Al hacer clic en "Añadir tarjeta", entiendo que estoy inscribiéndome de forma gratuita al programa GustitosGo y autorizo a los negocios participantes, y redes de tarjetas a compartir mis transacciones del programa con GustitosGo para facilitar mis recompensas, y estoy de acuerdo con los 
+                <a href="#" class="terms-link">Términos de uso</a> y <a href="#" class="terms-link">Políticas de privacidad</a>.
+            </p>
+
+            <!-- Continue Button -->
+            <button id="signupBtn" disabled>Continuar</button>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Text -->
+    <div class="terms-text">
+        Al hacer clic en "Continuar o Continuar con Google u OfertaSimple", acepta los Términos y Condiciones
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const passwordField = document.getElementById('passwordField');
+            const signupBtn = document.getElementById('signupBtn');
+            const passwordInput = document.getElementById('password');
+
+            // Function to toggle visibility and validate inputs
+            function toggleVisibility() {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const lengthRequirement = document.getElementById('lengthReq');
+
+                if (emailPattern.test(emailInput.value)) {
+                    passwordField.classList.add('visible');
+                    signupBtn.classList.add('visible');
+
+                    // Check password length
+                    if (passwordInput.value.length >= 6) {
+                        lengthRequirement.classList.remove('invalid');
+                        lengthRequirement.classList.add('valid');
+                        signupBtn.disabled = false;
+                    } else {
+                        lengthRequirement.classList.remove('valid');
+                        lengthRequirement.classList.add('invalid');
+                        signupBtn.disabled = true;
+                    }
+                } else {
+                    passwordField.classList.remove('visible');
+                    signupBtn.classList.remove('visible');
+                    signupBtn.disabled = true;
+                    lengthRequirement.classList.remove('invalid');
+                    lengthRequirement.classList.remove('valid');
+                }
+            }
+
+            // Add event listeners for both email and password
+            emailInput.addEventListener('input', toggleVisibility);
+            passwordInput.addEventListener('input', toggleVisibility);
+
+            // Handle continuar button click
+            signupBtn.addEventListener('click', function(e) {
+                if (passwordInput.value.length < 6) {
+                    e.preventDefault();
+                    const lengthRequirement = document.getElementById('lengthReq');
+                    lengthRequirement.classList.remove('shake');
+                    void lengthRequirement.offsetWidth; // Trigger reflow to restart animation
+                    lengthRequirement.classList.add('shake', 'invalid'); // Ensure 'invalid' is added
+                    lengthRequirement.classList.remove('valid'); // Remove 'valid' if present
+                    return;
+                }
+
+                // Proceed with page transition if password is valid
+                const page1 = document.getElementById('page1');
+                const page2 = document.getElementById('page2');
+                const steps = document.querySelectorAll('.step');
+
+                // Transition pages
+                page1.classList.add('slide-left');
+                page2.classList.remove('next');
+                page2.classList.add('slide-in');
+
+                // Update steps
+                steps[0].classList.remove('active');
+                steps[1].classList.add('active');
+            });
+
+            // Floating label effect
+            const inputs = document.querySelectorAll('.input-group input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentNode.classList.add('active');
+                });
+
+                input.addEventListener('blur', function() {
+                    if (this.value === '') {
+                        this.parentNode.classList.remove('active');
+                    }
+                });
+
+                // Check if input has value on page load
+                if (input.value !== '') {
+                    input.parentNode.classList.add('active');
+                }
+            });
+
+            // Add click handler for OfertaSimple button
+            const ofertaSimpleBtn = document.querySelector('.ofertasimple-btn');
+            ofertaSimpleBtn.addEventListener('click', function() {
+                window.location.href = 'page1.html';
+            });
+
+            // Card input handling
+            if (document.getElementById('cardNumber')) {
+                const cardNameInput = document.getElementById('cardName');
+                const cardNumberInput = document.getElementById('cardNumber');
+                
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                    let formattedValue = '';
+                    
+                    for(let i = 0; i < value.length; i++) {
+                        if(i > 0 && i % 4 === 0) {
+                            formattedValue += ' ';
+                        }
+                        formattedValue += value[i];
+                    }
+                    
+                    e.target.value = formattedValue;
+                    
+                    // Enable button if both fields are filled
+                    const continueBtn = this.closest('.page').querySelector('#signupBtn');
+                    continueBtn.disabled = !(cardNameInput.value.length > 0 && value.length === 16);
+                });
+
+                // Force uppercase for card name
+                cardNameInput.addEventListener('input', function(e) {
+                    this.value = this.value.toUpperCase();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
