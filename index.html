@@ -190,6 +190,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            left: 0;
+            top: 0;
         }
 
         .page.current {
@@ -202,10 +204,6 @@
 
         .page.slide-left {
             transform: translateX(-100%);
-        }
-
-        .page.slide-in {
-            transform: translateX(0);
         }
 
         .steps-container {
@@ -237,6 +235,8 @@
             align-items: center;
             justify-content: center;
             margin-right: 8px;
+            flex-shrink: 0;
+            aspect-ratio: 1;
         }
 
         .step.active .step-number {
@@ -497,6 +497,137 @@
         .terms-link:hover {
             text-decoration: underline;
         }
+
+        /* Add these CSS styles first */
+        .back-button {
+            background: none;
+            border: none;
+            color: #6B64DB;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Neue Montreal Regular', sans-serif;
+            padding: 12px;
+            margin-top: 12px;
+            width: 320px;
+            border-radius: 24px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: rgba(107, 100, 219, 0.1);
+        }
+
+        /* Update button styles to maintain consistency */
+        #personalInfoBtn, #cardBtn {
+            background-color: #6B64DB;
+            color: white;
+            font-size: 16px;
+            padding: 12px;
+            width: 320px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        #personalInfoBtn:disabled, #cardBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Add loading state to buttons */
+        .button-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .button-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 2px solid #FFF;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: button-loading-spinner 0.8s linear infinite;
+        }
+
+        /* Add validation styles */
+        .input-group.error input {
+            border-color: #FF3B30;
+        }
+
+        .error-message {
+            color: #FF3B30;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .input-group.error .error-message {
+            display: block;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (max-width: 768px) {
+            .pages-container {
+                padding: 0 20px;
+                justify-content: flex-start;
+                min-height: 100dvh;
+            }
+
+            .page {
+                justify-content: flex-start;
+                padding-top: 20px;
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 8px;
+                margin-top: 16px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                margin-bottom: 32px;
+                padding: 0 20px;
+            }
+
+            .steps-container {
+                margin-bottom: 24px;
+            }
+
+            .input-group {
+                margin-bottom: 20px;
+            }
+
+            #personalInfoBtn,
+            #cardBtn,
+            #signupBtn,
+            .back-button {
+                width: 100%;
+                max-width: 320px;
+            }
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #6B64DB;
+            box-shadow: 0 0 0 2px rgba(107, 100, 219, 0.2);
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(107, 100, 219, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -513,7 +644,12 @@
         <div class="step-divider"></div>
         <div class="step">
             <div class="step-number">2</div>
-            <span>Agregar Tarjeta</span>
+            <span>Datos</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <span>Tarjeta</span>
         </div>
     </div>
 
@@ -569,8 +705,28 @@
         </div>
 
         <!-- Second Page -->
+        <div class="page next" id="personalInfoPage">
+            <h2>Cuéntanos sobre ti</h2>
+            <p class="subtitle">Ingresa tus datos personales para continuar</p>
+
+            <!-- Input groups -->
+            <div class="input-group visible">
+                <input type="text" id="firstName" required>
+                <label for="firstName">Nombre</label>
+            </div>
+            <div class="input-group visible">
+                <input type="text" id="lastName" required>
+                <label for="lastName">Apellido</label>
+            </div>
+
+            <!-- Buttons container -->
+            <button id="personalInfoBtn" disabled>Continuar</button>
+            <button class="back-button" id="backToEmail">Volver</button>
+        </div>
+
+        <!-- Third Page -->
         <div class="page next" id="page2">
-            <h2>Agrega tu tarjeta</h2>
+            <h2>Agrega una tarjeta</h2>
             <p class="subtitle">Ingresa los datos de tu tarjeta para comenzar</p>
 
             <div class="card-container">
@@ -599,8 +755,9 @@
                 <a href="#" class="terms-link">Términos de uso</a> y <a href="#" class="terms-link">Políticas de privacidad</a>.
             </p>
 
-            <!-- Continue Button -->
-            <button id="signupBtn" disabled>Continuar</button>
+            <!-- Buttons container -->
+            <button id="cardBtn">Continuar</button>
+            <button class="back-button" id="backToPersonalInfo">Volver</button>
         </div>
     </div>
 
@@ -660,17 +817,15 @@
                     return;
                 }
 
-                // Proceed with page transition if password is valid
                 const page1 = document.getElementById('page1');
-                const page2 = document.getElementById('page2');
+                const personalInfoPage = document.getElementById('personalInfoPage');
                 const steps = document.querySelectorAll('.step');
 
-                // Transition pages
+                page1.classList.remove('current');
                 page1.classList.add('slide-left');
-                page2.classList.remove('next');
-                page2.classList.add('slide-in');
+                personalInfoPage.classList.remove('next');
+                personalInfoPage.classList.add('current');
 
-                // Update steps
                 steps[0].classList.remove('active');
                 steps[1].classList.add('active');
             });
@@ -728,6 +883,65 @@
                     this.value = this.value.toUpperCase();
                 });
             }
+
+            // Add handlers for personal info page
+            if (document.getElementById('personalInfoPage')) {
+                const firstNameInput = document.getElementById('firstName');
+                const lastNameInput = document.getElementById('lastName');
+                const personalInfoBtn = document.getElementById('personalInfoBtn');
+
+                // Enable/disable continue button based on inputs
+                function validatePersonalInfo() {
+                    personalInfoBtn.disabled = !(firstNameInput.value.trim() && lastNameInput.value.trim());
+                }
+
+                firstNameInput.addEventListener('input', validatePersonalInfo);
+                lastNameInput.addEventListener('input', validatePersonalInfo);
+
+                // Handle continue button click
+                personalInfoBtn.addEventListener('click', function() {
+                    const personalInfoPage = document.getElementById('personalInfoPage');
+                    const page2 = document.getElementById('page2');
+                    const steps = document.querySelectorAll('.step');
+
+                    personalInfoPage.classList.remove('current');
+                    personalInfoPage.classList.add('slide-left');
+                    page2.classList.remove('next');
+                    page2.classList.add('current');
+
+                    steps[1].classList.remove('active');
+                    steps[2].classList.add('active');
+                });
+            }
+
+            // Add back button handlers
+            document.getElementById('backToEmail').addEventListener('click', function() {
+                const personalInfoPage = document.getElementById('personalInfoPage');
+                const page1 = document.getElementById('page1');
+                const steps = document.querySelectorAll('.step');
+
+                personalInfoPage.classList.remove('current');
+                personalInfoPage.classList.add('next');
+                page1.classList.remove('slide-left');
+                page1.classList.add('current');
+
+                steps[1].classList.remove('active');
+                steps[0].classList.add('active');
+            });
+
+            document.getElementById('backToPersonalInfo').addEventListener('click', function() {
+                const page2 = document.getElementById('page2');
+                const personalInfoPage = document.getElementById('personalInfoPage');
+                const steps = document.querySelectorAll('.step');
+
+                page2.classList.remove('current');
+                page2.classList.add('next');
+                personalInfoPage.classList.remove('slide-left');
+                personalInfoPage.classList.add('current');
+
+                steps[2].classList.remove('active');
+                steps[1].classList.add('active');
+            });
         });
     </script>
 </body>
